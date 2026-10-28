@@ -1,0 +1,117 @@
+<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>SW Launcher</title>
+<style>
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{--bg:#2d2d30;--bg2:#3a3a3f;--tx:#f4f4f4;--mut:#a0a0a8;--card:#46464c;--sz:1}
+body.light{--bg:#ebebeb;--bg2:#fff;--tx:#2b2b2b;--mut:#777;--card:#d8d8dc}
+body.glass{--bg:#0d1b2a;--bg2:#ffffff22;--tx:#fff;--mut:#cde;--card:#ffffff2a;background:linear-gradient(135deg,#0d1b2a,#3a1c71 60%,#d76d77)}
+*{box-sizing:border-box}
+body{margin:0;height:100vh;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,sans-serif;display:flex;flex-direction:column;overflow:hidden;user-select:none}
+.glass .tile,.glass .bar button,.glass .chip,.glass .modal>div{backdrop-filter:blur(16px)}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 48px 0}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#00c3e3,#ff4554);display:flex;align-items:center;justify-content:center;font-size:22px}
+#clock{font-size:21px;font-weight:600;letter-spacing:.5px}.status{display:flex;gap:16px;align-items:center}
+.chips{display:flex;gap:10px;flex-wrap:wrap;padding:14px 48px 0}
+.chip{padding:7px 18px;border-radius:22px;background:var(--bg2);cursor:pointer;font-size:14px;border:2px solid transparent;transition:.15s}
+.chip.on{border-color:var(--tx)}.chip.off{opacity:.45}
+main{flex:1;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;padding:0 70px;gap:24px;scrollbar-width:none}
+main::-webkit-scrollbar{display:none}
+.tile{flex:0 0 auto;width:calc(190px*var(--sz));height:calc(250px*var(--sz));background:var(--card);border-radius:18px;overflow:hidden;position:relative;cursor:pointer;transition:transform .18s cubic-bezier(.2,.9,.3,1.2);background-size:cover;background-position:center;display:flex;align-items:flex-end;justify-content:center}
+.tile span{width:100%;padding:12px;font-size:14px;font-weight:600;color:#fff;text-align:center;background:linear-gradient(transparent,#000b);opacity:0;transition:.15s;word-break:break-word}
+.tile span:first-child:not(:last-child){position:absolute;top:28%;font-size:54px;background:none;opacity:1;padding:0;left:0}
+.tile.sel{transform:scale(1.1);z-index:2}.tile.sel span:last-child{opacity:1}
+.tile.sel::after,.bar button:hover::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:5px;pointer-events:none;
+ background:conic-gradient(from var(--a),#ff3b30,#ffcc00,#34c759,#00c3e3,#5856d6,#ff2d95,#ff3b30);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3.5s linear infinite}
+@keyframes spin{to{--a:360deg}}
+.empty{margin:auto;color:var(--mut);font-size:18px}
+.acts{display:flex;justify-content:center;align-items:center;gap:14px;height:62px}
+.acts button{border:0;border-radius:50%;width:46px;height:46px;background:var(--bg2);color:var(--tx);font-size:19px;cursor:pointer;transition:.15s}
+.acts button:hover{transform:scale(1.12);background:var(--card)}
+.acts .play{width:auto;border-radius:24px;padding:0 28px;background:var(--tx);color:var(--bg);font-weight:700;font-size:16px}
+.bar{display:flex;justify-content:center;gap:34px;padding:16px 0 26px}
+.bar button{position:relative;border:0;border-radius:50%;width:62px;height:62px;background:var(--bg2);color:var(--tx);font-size:26px;cursor:pointer;transition:.18s}
+.bar button:hover{transform:scale(1.12)}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center}
+.modal>div{background:var(--bg);padding:30px;border-radius:24px;width:460px;max-width:92vw}
+.row{display:flex;justify-content:space-between;align-items:center;margin:16px 0;gap:10px}
+select,input[type=password]{background:var(--card);color:var(--tx);border:0;border-radius:10px;padding:9px;width:200px}
+.btn{background:var(--tx);color:var(--bg);border:0;border-radius:20px;padding:9px 18px;cursor:pointer;font-weight:600}
+</style>
+<body>
+<header><div class="avatar">🎮</div><div class="status"><span>📶</span><span id="clock"></span><span>🔋</span></div></header>
+<div class="chips" id="disks"></div><div class="chips" id="parts" style="padding-top:8px"></div>
+<main id="grid"></main>
+<div class="acts" id="acts"></div>
+<div class="bar">
+ <button title="فحص مجلد ألعاب" onclick="scanAdd()">🔍</button>
+ <button title="إضافة مجلد" onclick="addOne()">➕</button>
+ <button title="الصوت" id="snd" onclick="toggleSnd()">🔊</button>
+ <button title="الإعدادات" onclick="openSet()">⚙️</button>
+</div>
+<div class="modal" id="set"><div>
+ <h3>الإعدادات</h3>
+ <div class="row">حجم الأيقونات<input type="range" min=".7" max="1.5" step=".1" id="isz" oninput="S.settings.size=+this.value;apply()"></div>
+ <div class="row">الصوت<input type="checkbox" id="sndc" onchange="S.settings.sound=this.checked;apply()"></div>
+ <div class="row">الثيم<select id="thm" onchange="S.settings.theme=this.value;apply()"><option value="dark">ليلي</option><option value="light">فاتح</option><option value="glass">زجاجي</option></select></div>
+ <div class="row">مفتاح SteamGridDB<input type="password" id="key" onchange="S.settings.key=this.value;persist()"></div>
+ <div class="row"><button class="btn" onclick="exportS()">حفظ الإعدادات</button><button class="btn" onclick="importS()">استعادة الإعدادات</button><button class="btn" onclick="closeSet()">إغلاق</button></div>
+</div></div>
+<script>
+let S, live = [], cur = {disk: null, part: null}, sel = 0;
+const $ = q => document.querySelector(q), api = window.api;
+const AC = new (window.AudioContext || webkitAudioContext)();
+function beep(f, d = .07) { if (!S.settings.sound) return; const o = AC.createOscillator(), g = AC.createGain();
+  o.frequency.value = f; g.gain.setValueAtTime(.08, AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d);
+  o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + d); }
+const persist = () => api.save(S);
+function apply() { document.body.className = S.settings.theme === 'dark' ? '' : S.settings.theme;
+  document.documentElement.style.setProperty('--sz', S.settings.size); $('#snd').textContent = S.settings.sound ? '🔊' : '🔇';
+  persist(); }
+async function init() {
+  S = (await api.load()) || {settings: {sound: true, size: 1, theme: 'dark', key: ''}, disks: {}};
+  live = await api.drives();
+  for (const d of live) { const D = S.disks[d.name] ||= {parts: {}}; D.parts[d.letter] ||= {folders: []}; D.parts[d.letter].size = d.size; }
+  cur.disk = Object.keys(S.disks)[0]; cur.part = cur.disk && Object.keys(S.disks[cur.disk].parts)[0];
+  apply(); render();
+  setInterval(() => $('#clock').textContent = new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'}), 1000);
+}
+const online = (n, l) => live.some(d => d.name === n && (!l || d.letter === l));
+const F = () => (S.disks[cur.disk]?.parts[cur.part]?.folders) || [];
+function render() {
+  $('#disks').innerHTML = Object.keys(S.disks).map(n => `<div class="chip ${n === cur.disk ? 'on' : ''} ${online(n) ? '' : 'off'}" onclick="pickDisk('${n.replace(/'/g, "\\'")}')">💽 ${n}</div>`).join('');
+  const P = S.disks[cur.disk]?.parts || {};
+  $('#parts').innerHTML = Object.keys(P).map(l => `<div class="chip ${l === cur.part ? 'on' : ''} ${online(cur.disk, l) ? '' : 'off'}" onclick="pickPart('${l}')">${l}: ${P[l].size ? (P[l].size / 1e9).toFixed(0) + ' GB' : ''}</div>`).join('');
+  const fs_ = F(); sel = Math.min(sel, Math.max(0, fs_.length - 1));
+  $('#grid').innerHTML = fs_.length ? fs_.map((f, i) => `<div class="tile ${i === sel ? 'sel' : ''}" onclick="select(${i})" ondblclick="play()" style="${f.cover ? `background-image:url('file:///${f.cover.replace(/\\/g, '/')}')` : ''}">${f.cover ? '' : '<span style="position:absolute;top:30%;font-size:48px;text-align:center;background:none">📁</span>'}<span>${f.name}</span></div>`).join('') : '<div class="empty">لا توجد مجلدات — اضغط 🔍 لفحص مجلد ألعاب</div>';
+  $('#acts').innerHTML = fs_.length ? `<button class="play" onclick="play()">▶ تشغيل</button><button title="تعيين exe" onclick="setExe()">🔗</button><button title="بوستر SteamGridDB" onclick="getCover()">🖼️</button><button title="تغيير الاسم" onclick="rename()">✏️</button><button title="حذف من الواجهة" onclick="del()">🗑️</button>` : '';
+  document.querySelector('.tile.sel')?.scrollIntoView({inline: 'center', block: 'nearest'});
+}
+const pickDisk = n => { cur.disk = n; cur.part = Object.keys(S.disks[n].parts)[0]; sel = 0; beep(520); render(); };
+const pickPart = l => { cur.part = l; sel = 0; beep(560); render(); };
+const select = i => { sel = i; beep(700, .04); render(); };
+async function scanAdd() {
+  const p = await api.pickFolder(); if (!p) return; beep(880);
+  const list = await api.scan(p), arr = F();
+  for (const x of list) if (!arr.some(f => f.path === x)) arr.push({path: x, name: x.split('\\').pop(), cover: '', exe: ''});
+  persist(); render();
+}
+async function addOne() { const p = await api.pickFolder(); if (!p) return; F().push({path: p, name: p.split('\\').pop(), cover: '', exe: ''}); persist(); render(); }
+async function play() { const f = F()[sel]; if (!f) return; beep(900, .12); f.exe ? api.launch(f.exe) : api.open(f.path); }
+async function setExe() { const e = await api.pickExe(); if (e) { F()[sel].exe = e; persist(); beep(800); } }
+async function getCover() {
+  if (!S.settings.key) { alert('ضع مفتاح SteamGridDB من الإعدادات أولاً'); return openSet(); }
+  const f = F()[sel], r = await api.sgdb(f.name, S.settings.key);
+  if (r.file) { f.cover = r.file; persist(); render(); } else alert(r.error);
+}
+function rename() { const f = F()[sel], n = prompt('الاسم الجديد (داخل الواجهة فقط)', f.name); if (n) { f.name = n; persist(); render(); } }
+function del() { if (confirm('حذف من الواجهة فقط؟ (الفولدر الحقيقي لا يتأثر)')) { F().splice(sel, 1); persist(); render(); } }
+const toggleSnd = () => { S.settings.sound = !S.settings.sound; apply(); beep(600); };
+function openSet() { $('#isz').value = S.settings.size; $('#sndc').checked = S.settings.sound; $('#thm').value = S.settings.theme; $('#key').value = S.settings.key || ''; $('#set').style.display = 'flex'; beep(660); }
+const closeSet = () => { $('#set').style.display = 'none'; beep(440); };
+function exportS() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S)])); a.download = 'launcher-backup.json'; a.click(); }
+function importS() { const i = document.createElement('input'); i.type = 'file'; i.onchange = async () => { S = JSON.parse(await i.files[0].text()); apply(); render(); }; i.click(); }
+addEventListener('keydown', e => { const n = F().length;
+  if (e.key === 'ArrowLeft') select(Math.min(n - 1, sel + 1)); if (e.key === 'ArrowRight') select(Math.max(0, sel - 1));
+  if (e.key === 'Enter') play(); if (e.key === 'Escape') closeSet(); });
+init();
+</script></body></html>

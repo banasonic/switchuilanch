@@ -1,0 +1,14 @@
+{
+  "name": "sw-launcher",
+  "version": "1.0.0",
+  "description": "Game folder launcher",
+  "main": "main.js",
+  "scripts": { "start": "electron .", "dist": "electron-builder --win portable --publish never" },
+  "devDependencies": { "electron": "^31.0.0", "electron-builder": "^24.13.3" },
+  "build": {
+    "appId": "com.local.swlauncher",
+    "productName": "SW Launcher",
+    "files": ["main.js", "preload.js", "index.html"],
+    "win": { "target": "portable", "artifactName": "SW-Launcher.exe" }
+  }
+}
