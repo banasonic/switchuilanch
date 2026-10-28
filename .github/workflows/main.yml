@@ -12,10 +12,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: src-tauri }
       - run: npm install
-      - run: npm run dist
+      - run: npx tauri build --no-bundle
       - uses: actions/upload-artifact@v4
-        with: { name: SW-Launcher, path: dist/SW-Launcher.exe }
+        with: { name: SW-Launcher, path: src-tauri/target/release/sw-launcher.exe }
       - if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
-        with: { files: dist/SW-Launcher.exe }
+        with: { files: src-tauri/target/release/sw-launcher.exe }
