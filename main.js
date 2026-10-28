@@ -23,12 +23,12 @@ ipcMain.handle('pickExe', async () => { const r = await dialog.showOpenDialog(wi
 ipcMain.handle('scan', (_, p) => fs.readdirSync(p, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => path.join(p, d.name)));
 ipcMain.handle('launch', (_, p) => { cp.spawn(p, [], { cwd: path.dirname(p), detached: true, stdio: 'ignore' }).unref(); return true; });
 ipcMain.handle('open', (_, p) => shell.openPath(p));
-ipcMain.handle('sgdb', async (_, name, key) => {
+ipcMain.handle('sgdb', async (_, name, key, dim) => {
   try {
     const h = { Authorization: 'Bearer ' + key };
     const s = await (await fetch('https://www.steamgriddb.com/api/v2/search/autocomplete/' + encodeURIComponent(name), { headers: h })).json();
     if (!s.data || !s.data.length) return { error: 'لا نتائج' };
-    const g = await (await fetch(`https://www.steamgriddb.com/api/v2/grids/game/${s.data[0].id}?dimensions=600x900`, { headers: h })).json();
+    const g = await (await fetch(`https://www.steamgriddb.com/api/v2/grids/game/${s.data[0].id}?dimensions=${dim || '600x900'}`, { headers: h })).json();
     if (!g.data || !g.data.length) return { error: 'لا يوجد بوستر' };
     const buf = Buffer.from(await (await fetch(g.data[0].url)).arrayBuffer());
     const f = path.join(covers, s.data[0].id + '.png'); fs.writeFileSync(f, buf);
