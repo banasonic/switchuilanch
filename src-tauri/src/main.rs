@@ -104,6 +104,87 @@ async fn fetch_cover(name: String, key: String, dim: String, kind: String) -> Re
         Ok(fs_)
     }).await.map_err(|e| e.to_string())?
 }
+
+fn sgdb_id(name: &str, key: &str) -> Result<i64, String> {
+    let auth = format!("Authorization: Bearer {}", key);
+    let u = format!("https://www.steamgriddb.com/api/v2/search/autocomplete/{}", enc(name));
+    let j: Value = serde_json::from_slice(&curl(&["-s", "-L", "-H", auth.as_str(), u.as_str()])?).map_err(|_| "رد غير صالح (تأكد من المفتاح)".to_string())?;
+    j["data"][0]["id"].as_i64().ok_or_else(|| "لا نتائج لهذا الاسم".to_string())
+}
+fn shuffle<T>(v: &mut Vec<T>) {
+    let mut s = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos() as u64).unwrap_or(88172645463325252) | 1;
+    for i in (1..v.len()).rev() {
+        s ^= s << 13; s ^= s >> 7; s ^= s << 17;
+        let j = (s % (i as u64 + 1)) as usize;
+        v.swap(i, j);
+    }
+}
+#[tauri::command]
+async fn sgdb_list(name: String, key: String, dim: String, kind: String, count: usize) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || -> Result<String, String> {
+        let id = sgdb_id(&name, &key)?;
+        let auth = format!("Authorization: Bearer {}", key);
+        let kind = if kind == "heroes" { "heroes" } else { "grids" };
+        let mut tries: Vec<String> = Vec::new();
+        if kind == "grids" && !dim.is_empty() { tries.push(format!("?types=static&dimensions={}", dim)); }
+        tries.push("?types=static".to_string());
+        for q in tries {
+            let u = format!("https://www.steamgriddb.com/api/v2/{}/game/{}{}", kind, id, q);
+            let g: Value = serde_json::from_slice(&curl(&["-s", "-L", "-H", auth.as_str(), u.as_str()])?).map_err(|_| "رد غير صالح".to_string())?;
+            if let Some(arr) = g["data"].as_array() {
+                let mut items: Vec<Value> = arr.iter().filter(|x| x["url"].is_string()).map(|x| {
+                    let url = x["url"].as_str().unwrap_or("");
+                    json!({ "url": url, "thumb": x["thumb"].as_str().unwrap_or(url) })
+                }).collect();
+                if !items.is_empty() {
+                    shuffle(&mut items);
+                    items.truncate(count.max(1));
+                    return Ok(Value::Array(items).to_string());
+                }
+            }
+        }
+        Ok("[]".to_string())
+    }).await.map_err(|e| e.to_string())?
+}
+fn safe_name(s: &str) -> String {
+    let t: String = s.chars().map(|c| if c.is_control() || "<>:\"/\\|?*".contains(c) { '_' } else { c }).collect();
+    let t = t.trim().trim_end_matches('.').split_whitespace().collect::<Vec<_>>().join(" ");
+    if t.is_empty() { "game".to_string() } else { t.chars().take(80).collect() }
+}
+fn kind_suffix(kind: &str) -> &'static str { if kind == "hero" { "hero" } else { "poster" } }
+#[tauri::command]
+async fn save_image(url: String, name: String, kind: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || -> Result<String, String> {
+        let dir = base_dir().join("covers");
+        let base = format!("{}_{}", safe_name(&name), kind_suffix(&kind));
+        let clean = url.to_lowercase();
+        let clean = clean.split('?').next().unwrap_or("").to_string();
+        let ext = ["png", "jpg", "jpeg", "webp"].iter().find(|e| clean.ends_with(&format!(".{}", e))).copied().unwrap_or("png");
+        if let Ok(rd) = fs::read_dir(&dir) {
+            for e in rd.flatten() {
+                let p = e.path();
+                if p.file_stem().map(|s| s.to_string_lossy().as_ref() == base.as_str()).unwrap_or(false) { let _ = fs::remove_file(&p); }
+            }
+        }
+        let file = dir.join(format!("{}.{}", base, ext));
+        let fstr = file.to_string_lossy().to_string();
+        curl(&["-s", "-L", "-o", fstr.as_str(), url.as_str()])?;
+        if fs::metadata(&file).map(|m| m.len()).unwrap_or(0) == 0 { return Err("فشل تنزيل الصورة".to_string()); }
+        Ok(fstr)
+    }).await.map_err(|e| e.to_string())?
+}
+#[tauri::command]
+fn rename_media(path: String, name: String, kind: String) -> Result<String, String> {
+    let p = PathBuf::from(&path);
+    let dir = base_dir().join("covers");
+    if !p.exists() || p.parent() != Some(dir.as_path()) { return Ok(path); }
+    let ext = p.extension().map(|e| e.to_string_lossy().to_string()).unwrap_or_else(|| "png".to_string());
+    let new = dir.join(format!("{}_{}.{}", safe_name(&name), kind_suffix(&kind), ext));
+    if new == p { return Ok(path); }
+    let _ = fs::remove_file(&new);
+    fs::rename(&p, &new).map_err(|e| e.to_string())?;
+    Ok(new.to_string_lossy().to_string())
+}
 #[tauri::command]
 fn read_cover(path: String) -> Result<String, String> {
     let b = fs::read(&path).map_err(|e| e.to_string())?;
@@ -182,7 +263,7 @@ fn quit(app: tauri::AppHandle) { app.exit(0); }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![load_data, save_data, list_drives, pick_folder, pick_file, export_data, import_data, gamepad_battery, scan, launch, open_path, fetch_cover, read_cover, quit])
+        .invoke_handler(tauri::generate_handler![load_data, save_data, list_drives, pick_folder, pick_file, export_data, import_data, gamepad_battery, scan, launch, open_path, fetch_cover, sgdb_list, save_image, rename_media, read_cover, quit])
         .run(tauri::generate_context!())
         .expect("error while running app");
 }
