@@ -116,18 +116,22 @@ body.ps #menu,body.ps #mlabel,body.ps #games,body.ps #title,body.ps #pill,body.p
 body.ps [data-sw]{display:none}
 #ps{display:none;position:absolute;inset:0}body.ps #ps{display:block}
 #psov{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.05) 32%,rgba(0,0,0,.6) 100%)}
-#pstabs{left:94px;top:36px;display:flex;gap:30px;align-items:center;font-size:35px;white-space:nowrap}
-.pst{opacity:.7;cursor:pointer;position:relative}.pst.on{opacity:1;font-weight:700}.pst.on::after{content:"";position:absolute;left:50%;bottom:-12px;width:8px;height:8px;border-radius:50%;background:#fff;margin-left:-4px}.pst.off{opacity:.4}
-.psp{font-size:23px;padding:4px 16px;border-radius:30px;background:#0009;cursor:pointer;opacity:.85}.psp.on{background:#fff;color:#111;opacity:1}.psp.off{opacity:.45}
+#pstabs{left:94px;top:22px;width:1230px;height:46px;display:flex;gap:10px;align-items:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent);mask-image:linear-gradient(90deg,#000 94%,transparent)}
+#pstabs::-webkit-scrollbar{display:none}
+#pstabs2{left:94px;top:74px;display:flex;gap:8px;align-items:center}
+.psp{flex:0 0 auto;font-size:23px;line-height:30px;padding:5px 20px;border-radius:30px;background:#0009;color:#fff;cursor:pointer;opacity:.9;white-space:nowrap;max-width:340px;overflow:hidden;text-overflow:ellipsis;border:2px solid #ffffff22;unicode-bidi:plaintext}
+.psp.on{background:#fff;color:#111;opacity:1;border-color:#fff;font-weight:600}.psp.off{opacity:.5}
+#pstabs2 .psp{font-size:19px;line-height:24px;padding:3px 15px}
 .pt{position:absolute;left:0;top:0;border-radius:15px;background:#0c0d11e6 center/cover;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:19px;line-height:24px;text-align:center;padding:8px;transition:transform .3s cubic-bezier(.3,.8,.3,1),width .3s,height .3s,border-radius .3s;color:#fff;unicode-bidi:plaintext;overflow:hidden}
 .pt.sel{border-radius:25px;outline:3px solid #fff;outline-offset:4px;font-size:24px;overflow:visible}
 #pshero{left:172px;top:372px;width:1500px}
-#psacts{display:flex;gap:12px;align-items:center;height:50px}
-.pa{height:48px;padding:0 22px;border-radius:24px;background:#000a;color:#fff;font-size:20px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;border:2px solid transparent;unicode-bidi:plaintext}
-.pa:hover{border-color:#fff}.pa.main{background:#fff;color:#111;font-weight:700;padding:0 34px;font-size:22px}
-#psname{font-size:52px;line-height:62px;margin-top:18px;font-weight:700;text-shadow:0 2px 16px #000a;unicode-bidi:plaintext;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#psacts{left:500px;top:520px;display:flex;flex-direction:column;gap:12px;width:340px}
+
+.pa{height:52px;width:340px;padding:0 24px;border-radius:24px;background:#000a;color:#fff;font-size:20px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;border:2px solid transparent;unicode-bidi:plaintext}
+.pa:hover{border-color:#fff}.pa.main{background:#fff;color:#111;font-weight:700;font-size:23px}
+#psname{font-size:52px;line-height:62px;margin-top:0;font-weight:700;text-shadow:0 2px 16px #000a;unicode-bidi:plaintext;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pssub{font-size:27px;line-height:34px;opacity:.85;text-shadow:0 2px 10px #000a;unicode-bidi:plaintext;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc{position:absolute;top:566px;width:360px;height:330px;border-radius:20px;background:#232b40 center/cover;overflow:hidden;cursor:pointer;transition:transform .2s;display:flex;align-items:flex-end;box-shadow:0 10px 28px #0006}
+.pc{position:absolute;top:520px;width:360px;height:330px;border-radius:20px;background:#232b40 center/cover;overflow:hidden;cursor:pointer;transition:transform .2s;display:flex;align-items:flex-end;box-shadow:0 10px 28px #0006}
 .pc:hover{transform:translateY(-6px)}.pc.first{outline:3px solid #fff;outline-offset:4px}
 .pc span{width:100%;padding:34px 18px 16px;font-size:26px;line-height:30px;background:linear-gradient(transparent,#000d);unicode-bidi:plaintext}
 #psdock{left:200px;top:966px;display:flex;gap:26px}
@@ -137,8 +141,8 @@ body.ps [data-sw]{display:none}
 .pd .pl{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:24px;text-shadow:0 2px 8px #000a;unicode-bidi:plaintext}
 body.ps #prof{left:1548px;top:24px;width:56px;height:56px;border-width:3px}
 body.ps #data{left:1632px;top:40px;transform:scale(.72);transform-origin:0 0}body.ps #bat{left:200px!important}
-body.ps #dateRow{top:86px;right:80px;font-size:20px;line-height:24px}
-body.ps #pills{top:30px;right:590px}body.ps .pl2,body.ps .pl{backdrop-filter:none}
+body.ps #dateRow{top:90px;right:80px;font-size:20px;line-height:24px}
+body.ps #pills{top:82px;right:600px}body.ps .pl2,body.ps .pl{backdrop-filter:none}
 #uisw{display:flex;height:44px;border-radius:22px;background:var(--menu);border:3px solid var(--mst);overflow:hidden;font-size:21px;top:104px;left:190px;z-index:5}
 #uisw b{padding:0 18px;display:flex;align-items:center;cursor:pointer;font-weight:600;opacity:.65}#uisw b.on{background:var(--info);color:var(--bg);opacity:1}
 body.glass #uisw{background:#ffffff38;border-color:#fff6}body.glass #uisw b.on{color:#1f3347}
@@ -158,8 +162,8 @@ body.ps #uisw{top:30px;left:1346px;background:#0009;border-color:#ffffff40}body.
  <div id="games" class="abs" style="left:0;top:0"></div>
  <div id="menu" class="abs"></div><div id="mlabel"></div>
  <div id="ctl" class="abs"></div>
- <div id="ps"><div id="psov"></div><div id="pstabs" class="abs"></div><div id="psrow"></div>
-  <div id="pshero" class="abs"><div id="psacts"></div><div id="psname"></div><div id="pssub"></div></div><div id="pscards"></div><div id="psdock" class="abs"></div></div>
+ <div id="ps"><div id="psov"></div><div id="pstabs" class="abs"></div><div id="pstabs2" class="abs"></div><div id="psrow"></div>
+  <div id="pshero" class="abs"><div id="psname"></div><div id="pssub"></div></div><div id="psacts" class="abs"></div><div id="pscards"></div><div id="psdock" class="abs"></div></div>
  <div id="hints" class="abs"></div>
 </div>
 <div id="toast"></div><div id="ctx"></div>
@@ -351,19 +355,22 @@ const UIS={switch:1,ps:1};
 function setUi(u){if(!UIS[u]||S.settings.ui===u)return;S.settings.ui=u;persist();bgKey='';mfocus=false;msel=-1;apply();buildAll();sfx(u==='ps'?'home':'user',.7);}
 $('#uisw').onclick=e=>{const b=e.target.closest('b');if(b)setUi(b.dataset.u)};
 function uiMark(){document.querySelectorAll('#uisw b').forEach(b=>b.classList.toggle('on',b.dataset.u===S.settings.ui))}
-function psTabs(){const el=$('#pstabs');
- if(!isMain()){el.innerHTML=`<div class="pst on">⭐ ${t('favs')}</div>`;return}
+function psTabs(){const el=$('#pstabs'),el2=$('#pstabs2');
+ if(!isMain()){el.innerHTML=`<div class="psp on">⭐ ${t('favs')}</div>`;el2.innerHTML='';return}
  const P=S.disks[cur.disk]?.parts||{},sz=S.settings.showSize;
- el.innerHTML=Object.keys(S.disks).map(n=>`<div class="pst ${n===cur.disk?'on':''} ${online(n)?'':'off'}" data-d="${encodeURIComponent(n)}">${esc(S.alias[n]||n)}${n===cur.disk?' <span data-r="1" style="opacity:.6;font-size:22px">✎</span>':''}</div>`).join('')+
-  Object.keys(P).map(l=>`<div class="psp ${l===cur.part?'on':''} ${online(cur.disk,l)?'':'off'}" data-p="${l}">${l}:${sz&&P[l].size?' '+(P[l].size/1e9).toFixed(0)+' GB':''}</div>`).join('')}
-$('#pstabs').onclick=async e=>{const c=e.target.closest('[data-d],[data-p]');if(!c)return;if(c.dataset.d){const n=decodeURIComponent(c.dataset.d);if(e.target.dataset.r)return renDisk(n);cur.disk=n;cur.part=Object.keys(S.disks[n].parts)[0]}else cur.part=c.dataset.p;sel=0;beep(520);buildAll()};
+ el.innerHTML=Object.keys(S.disks).map(n=>`<div class="psp ${n===cur.disk?'on':''} ${online(n)?'':'off'}" data-d="${encodeURIComponent(n)}" title="${esc(S.alias[n]||n)}">💽 ${esc(S.alias[n]||n)}${n===cur.disk?' <span data-r="1" style="opacity:.6">✎</span>':''}</div>`).join('');
+ el2.innerHTML=Object.keys(P).map(l=>`<div class="psp ${l===cur.part?'on':''} ${online(cur.disk,l)?'':'off'}" data-p="${l}">${l}:${sz&&P[l].size?' '+(P[l].size/1e9).toFixed(0)+' GB':''}</div>`).join('');
+ const on=el.querySelector('.psp.on');if(on)el.scrollTo({left:Math.max(0,on.offsetLeft-120),behavior:'smooth'})}
+const psTabClick=async e=>{const c=e.target.closest('[data-d],[data-p]');if(!c)return;if(c.dataset.d){const n=decodeURIComponent(c.dataset.d);if(e.target.dataset.r)return renDisk(n);cur.disk=n;cur.part=Object.keys(S.disks[n].parts)[0]}else cur.part=c.dataset.p;sel=0;beep(520);buildAll()};
+$('#pstabs').onclick=psTabClick;$('#pstabs2').onclick=psTabClick;
+$('#pstabs').onwheel=e=>{e.preventDefault();e.currentTarget.scrollLeft+=e.deltaY+e.deltaX};
 function psDock(){$('#psdock').innerHTML=MI.map((it,i)=>`<div class="pd ${i===msel?'sel':''}" data-i="${i}">${it.i}${i===msel?`<span class="pl">${esc(it.t)}</span>`:''}</div>`).join('')}
 $('#psdock').onclick=e=>{const d=e.target.closest('.pd');if(d){beep(900,.08);MI[+d.dataset.i].f()}};
 $('#psdock').onmouseover=e=>{const d=e.target.closest('.pd');if(d&&msel!==+d.dataset.i){msel=+d.dataset.i;beep(700,.04);psDock()}};
 $('#psdock').onmouseleave=()=>{if(!mfocus){msel=-1;psDock()}};
 function psBuild(){const f=F(),r=$('#psrow');r.innerHTML='';sel=Math.min(sel,Math.max(0,f.length-1));
  f.forEach((x,i)=>{const d=document.createElement('div');d.className='pt';if(!x.cover)d.innerHTML=`<span>${esc(x.name)}</span>`;else loadCover(x.cover,d);d.onclick=()=>select(i);d.ondblclick=openFolder;r.appendChild(d)});
- const c=$('#pscards');c.innerHTML='';for(let k=0;k<4;k++){const d=document.createElement('div');d.className='pc';d.style.left=(84+k*376)+'px';c.appendChild(d)}
+ const c=$('#pscards');c.innerHTML='';for(let k=0;k<1;k++){const d=document.createElement('div');d.className='pc';d.style.left=(84+k*376)+'px';c.appendChild(d)}
  psTabs();uiMark()}
 function psLayout(){const f=F(),T=[...$('#psrow').children],x0=165;
  T.forEach((d,i)=>{let x,w=106,h=106;if(i===sel){w=175;h=168;x=x0}else if(i<sel)x=x0-114*(sel-i);else x=x0+175+8+114*(i-sel-1);
@@ -372,7 +379,7 @@ function psLayout(){const f=F(),T=[...$('#psrow').children],x0=165;
  $('#psname').textContent=cf?cf.name:t(isMain()?'empty':'emptyFav');$('#psname').style.fontSize=cf?'':'30px';
  $('#pssub').textContent=cf?cf.path:'';
  $('#psacts').innerHTML=cf?`<div class="pa main" onclick="runSel()">${ex?'▶':'📂'} ${t('play')}</div><div class="pa" onclick="openFav()">★ ${t('fav')}</div><div class="pa" onclick="getCover()">🖼 ${t('cover')}</div><div class="pa" onclick="setExe()">🔗 ${t('exe')}</div><div class="pa" onclick="rename()">✎ ${t('ren')}</div><div class="pa" onclick="del()">🗑 ${t('del')}</div>`:'';
- [...$('#pscards').children].forEach((d,k)=>{const x=f[sel+k];d.style.display=x?'flex':'none';d.classList.toggle('first',k===0);if(!x)return;d.innerHTML=`<span>${esc(x.name)}</span>`;d.onclick=()=>select(sel+k);const p=(k===0&&x.bg)||x.cover;d.style.backgroundImage='';if(p)getImg(p).then(u=>{d.style.backgroundImage=`url(${u})`}).catch(()=>{})});
+ [...$('#pscards').children].forEach((d,k)=>{const x=f[sel+k];d.style.display=x?'flex':'none';d.classList.toggle('first',k===0);if(!x)return;d.innerHTML=`<span>${esc(x.name)}</span>`;d.onclick=()=>select(sel+k);d.ondblclick=openFolder;const p=x.cover||x.bg;d.style.backgroundImage='';if(p)getImg(p).then(u=>{d.style.backgroundImage=`url(${u})`}).catch(()=>{})});
  psDock();uiMark();applyBg()}
 /* ---------- actions ---------- */
 async function scanAdd(){if(!isMain())return toast(t('mainOnly'));const p=await inv('pick_folder');if(!p)return;beep(880);try{const l=await inv('scan',{path:p}),a=F();for(const x of l)if(!a.some(f=>f.path===x))a.push({path:x,name:x.split('\\').pop(),cover:'',exe:''});persist();buildAll()}catch(e){toast(String(e))}}
