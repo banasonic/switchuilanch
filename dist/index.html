@@ -159,6 +159,8 @@ const AC=new (window.AudioContext||window.webkitAudioContext)();
 function beep(f,d=.07){try{if(!S.settings.sound)return;const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.setValueAtTime(.08,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 const SFX={};['home','select','run','user','ctl'].forEach(n=>{const a=new Audio('sounds/'+n+'.mp3');a.preload='auto';SFX[n]=a});
 function sfx(n,v=.7){try{if(!S||!S.settings.sound)return;const a=SFX[n];a.volume=v;a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+const relPath=p=>{if(!p)return p;const m=String(p).match(/[\\/]covers[\\/]([^\\/]+)$/i);return m?'covers/'+m[1]:p};
+function migrate(){let ch=false;const fx=(o,k)=>{const n=relPath(o[k]);if(n!==o[k]){o[k]=n;ch=true}};for(const D of Object.values(S.disks))for(const P of Object.values(D.parts))for(const f of P.folders){fx(f,'cover');fx(f,'bg')}fx(S.settings,'glassImg');return ch}
 const persist=()=>inv('save_data',{json:JSON.stringify(S)});
 function toast(m){const e=$('#toast');e.style.background='#000c';e.textContent=m;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',3800)}
 function dlg(title,def,input=true){if(input&&curPad())return oskOpen(title,def);return new Promise(r=>{$('#dlg>div').dir=lang==='ar'?'rtl':'ltr';$('#dt').textContent=title;$('#dok').textContent=t('ok');$('#dno').textContent=t('cancel');const i=$('#di');i.style.display=input?'block':'none';i.value=def||'';$('#dlg').style.display='flex';if(input)i.focus();
@@ -178,7 +180,7 @@ const online=(n,l)=>live.some(d=>d.name===n&&(!l||d.letter===l));
 function mergeLive(){for(const d of live){const D=S.disks[d.name]||={parts:{}};D.parts[d.letter]||={folders:[]};D.parts[d.letter].size=d.size}
  if(!S.disks[cur.disk]){cur.disk=Object.keys(S.disks)[0];cur.part=cur.disk&&Object.keys(S.disks[cur.disk].parts)[0]}}
 async function init(){
- S=JSON.parse((await inv('load_data'))||'null')||{settings:{},disks:{}};S.settings={...DEF,...S.settings};S.alias||={};S.cache||={};S.main||=S.settings.avatar;S.favs||={};
+ S=JSON.parse((await inv('load_data'))||'null')||{settings:{},disks:{}};S.settings={...DEF,...S.settings};S.alias||={};S.cache||={};S.main||=S.settings.avatar;S.favs||={};if(migrate())persist();
  if(!['light','dark','glass'].includes(S.settings.theme))S.settings.theme='light';lang=S.settings.lang;
  try{live=JSON.parse(await inv('list_drives')||'[]');if(!Array.isArray(live))live=[live]}catch(e){live=[]}
  cur.disk=Object.keys(S.disks)[0];cur.part=cur.disk&&Object.keys(S.disks[cur.disk].parts)[0];mergeLive();
@@ -379,7 +381,7 @@ function buildSet(){const s=S.settings,o=(a,v)=>a.map(([k,l])=>`<option value="$
 const closeSet=()=>{$('#set').style.display='none';beep(440)};
 async function pickBg(){const p=await inv('pick_file',{kind:'image'});if(p){S.settings.glassImg=p;persist();bgKey='';layout()}}
 async function exportS(){try{await inv('export_data',{json:JSON.stringify(S)});toast(t('done'))}catch(e){toast(String(e))}}
-async function importS(){try{const j=await inv('import_data');if(j){S=JSON.parse(j);S.settings={...DEF,...S.settings};S.alias||={};S.cache||={};S.main||=S.settings.avatar;S.favs||={};lang=S.settings.lang;persist();apply();buildAll();toast(t('done'))}}catch(e){toast(String(e))}}
+async function importS(){try{const j=await inv('import_data');if(j){S=JSON.parse(j);S.settings={...DEF,...S.settings};S.alias||={};S.cache||={};S.main||=S.settings.avatar;S.favs||={};migrate();lang=S.settings.lang;persist();apply();buildAll();toast(t('done'))}}catch(e){toast(String(e))}}
 /* ---------- input ---------- */
 const ctx=$('#ctx');
 addEventListener('contextmenu',e=>{e.preventDefault();ctx.textContent='🔄 '+t('refresh');ctx.style.left=Math.min(e.clientX,innerWidth-190)+'px';ctx.style.top=Math.min(e.clientY,innerHeight-60)+'px';ctx.style.display='block'});

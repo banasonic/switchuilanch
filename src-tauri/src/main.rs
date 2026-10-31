@@ -146,6 +146,18 @@ async fn sgdb_list(name: String, key: String, dim: String, kind: String, count: 
         Ok("[]".to_string())
     }).await.map_err(|e| e.to_string())?
 }
+// مسارات الصور نسبية (covers/اسم.png) وتُحلّ دائماً بالنسبة لمجلد data بجانب الـ exe الحالي
+fn resolve_media(path: &str) -> PathBuf {
+    let p = PathBuf::from(path);
+    let dir = base_dir().join("covers");
+    if p.is_relative() { return base_dir().join(&p); }
+    if p.exists() { return p; }
+    if let Some(n) = p.file_name() {
+        let alt = dir.join(n);
+        if alt.exists() { return alt; }
+    }
+    p
+}
 fn safe_name(s: &str) -> String {
     let t: String = s.chars().map(|c| if c.is_control() || "<>:\"/\\|?*".contains(c) { '_' } else { c }).collect();
     let t = t.trim().trim_end_matches('.').split_whitespace().collect::<Vec<_>>().join(" ");
@@ -170,24 +182,26 @@ async fn save_image(url: String, name: String, kind: String) -> Result<String, S
         let fstr = file.to_string_lossy().to_string();
         curl(&["-s", "-L", "-o", fstr.as_str(), url.as_str()])?;
         if fs::metadata(&file).map(|m| m.len()).unwrap_or(0) == 0 { return Err("فشل تنزيل الصورة".to_string()); }
-        Ok(fstr)
+        Ok(format!("covers/{}.{}", base, ext))
     }).await.map_err(|e| e.to_string())?
 }
 #[tauri::command]
 fn rename_media(path: String, name: String, kind: String) -> Result<String, String> {
-    let p = PathBuf::from(&path);
+    let p = resolve_media(&path);
     let dir = base_dir().join("covers");
     if !p.exists() || p.parent() != Some(dir.as_path()) { return Ok(path); }
     let ext = p.extension().map(|e| e.to_string_lossy().to_string()).unwrap_or_else(|| "png".to_string());
-    let new = dir.join(format!("{}_{}.{}", safe_name(&name), kind_suffix(&kind), ext));
-    if new == p { return Ok(path); }
-    let _ = fs::remove_file(&new);
-    fs::rename(&p, &new).map_err(|e| e.to_string())?;
-    Ok(new.to_string_lossy().to_string())
+    let fname = format!("{}_{}.{}", safe_name(&name), kind_suffix(&kind), ext);
+    let new = dir.join(&fname);
+    if new != p {
+        let _ = fs::remove_file(&new);
+        fs::rename(&p, &new).map_err(|e| e.to_string())?;
+    }
+    Ok(format!("covers/{}", fname))
 }
 #[tauri::command]
 fn read_cover(path: String) -> Result<String, String> {
-    let b = fs::read(&path).map_err(|e| e.to_string())?;
+    let b = fs::read(resolve_media(&path)).map_err(|e| e.to_string())?;
     let mime = if b.starts_with(&[0x89, 0x50]) { "image/png" } else if b.starts_with(&[0xFF, 0xD8]) { "image/jpeg" } else if b.len() > 12 && &b[8..12] == b"WEBP" { "image/webp" } else { "image/png" };
     Ok(format!("data:{};base64,{}", mime, STANDARD.encode(b)))
 }
