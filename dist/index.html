@@ -147,6 +147,8 @@ body.ps #pills{top:82px;right:600px}body.ps .pl2,body.ps .pl{backdrop-filter:non
 #uisw b{padding:0 18px;display:flex;align-items:center;cursor:pointer;font-weight:600;opacity:.65}#uisw b.on{background:var(--info);color:var(--bg);opacity:1}
 body.glass #uisw{background:#ffffff38;border-color:#fff6}body.glass #uisw b.on{color:#1f3347}
 body.ps #uisw{top:30px;left:1346px;background:#0009;border-color:#ffffff40}body.ps #uisw b.on{background:#fff;color:#111}
+#ps{pointer-events:none}#ps>div,#ps .abs{pointer-events:auto}#psov,#pshero{pointer-events:none!important}
+#prof{z-index:6}
 </style>
 <body class="light">
 <div id="bgA" class="bgl"></div><div id="bgB" class="bgl"></div>
@@ -275,10 +277,11 @@ function drawBattery(){let lv=100,chg=false,txt='';
  else if(sysBat){lv=Math.round(sysBat.level*100);chg=sysBat.charging}
  const w=Math.max(2,Math.round(32*lv/100)),low=lv<=20&&!chg;
  $('#bat').innerHTML=`<svg width="54" height="32" viewBox="0 0 54 32" style="fill:none;stroke:var(--info);stroke-width:4"><rect x="2" y="2" width="44" height="28" rx="5"/><rect x="8" y="8" width="${w}" height="16" rx="2" stroke="none" style="fill:${low?'#e53935':'var(--info)'}"/><rect x="48" y="10" width="6" height="12" stroke="none" style="fill:var(--info)"/>${chg?'<path d="M26 5l-8 13h7l-2 9 9-14h-7z" stroke="none" style="fill:#34c759;stroke:var(--bg);stroke-width:1.5"/>':''}</svg><span id="batp">${pad.kind?(pad.kind==='ps'?'🎮 ':'🎮 ')+txt:''}</span>`}
+const PS5='<svg viewBox="0 0 84 60"><path d="M18 6C11 6 6 12 5 22L2 42c-1 9 8 14 14 8l7-8h38l7 8c6 6 15 1 14-8L80 22C79 12 74 6 67 6z" fill="#f2f2f5"/><path d="M31 6h22l-3 17H34z" fill="#15151a"/><path d="M36 21h12" stroke="#4dabff" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="38" r="6" fill="#15151a"/><circle cx="52" cy="38" r="6" fill="#15151a"/><path d="M15 18h6M18 15v6" stroke="#15151a" stroke-width="2.4" stroke-linecap="round"/><circle cx="66" cy="15" r="2" fill="#15151a"/><circle cx="66" cy="23" r="2" fill="#15151a"/><circle cx="62" cy="19" r="2" fill="#15151a"/><circle cx="70" cy="19" r="2" fill="#15151a"/></svg>';
 function drawCtl(){const sq='<i style="top:4px"></i><i style="top:20px"></i><i style="top:36px"></i><i style="top:52px"></i>';
  const PS='<svg viewBox="0 0 84 60"><path d="M16 6C10 6 5 12 4 22L1 42c-1 9 9 13 14 6l6-8h42l6 8c5 7 15 3 14-6L80 22C79 12 74 6 68 6z"/><rect x="31" y="9" width="22" height="9" rx="3" style="fill:var(--btn)"/><circle cx="34" cy="36" r="6" style="fill:var(--btn)"/><circle cx="50" cy="36" r="6" style="fill:var(--btn)"/></svg>';
  const XB='<svg viewBox="0 0 84 60"><path d="M20 6C12 6 6 14 4 26L1 44c-1 9 9 13 14 6l8-10h38l8 10c5 7 15 3 14-6L80 26C78 14 72 6 64 6z"/><circle cx="24" cy="23" r="6" style="fill:var(--btn)"/><circle cx="52" cy="37" r="6" style="fill:var(--btn)"/><path d="M33 33h8M37 29v8" stroke="var(--btn)" stroke-width="3"/><circle cx="62" cy="23" r="3" style="fill:var(--btn)"/></svg>';
- $('#ctl').innerHTML=sq+(pad.kind==='ps'?PS:pad.kind==='xbox'?XB:'<s style="left:22px"></s><s style="left:58px"></s>');
+ $('#ctl').innerHTML=sq+(pad.kind==='xbox'?XB:(pad.kind==='ps'||isPs())?PS5:'<s style="left:22px"></s><s style="left:58px"></s>');
  $('#ctl').firstChild.style.background=pad.kind?'#14cb0c':'';$('#ctl').firstChild.style.opacity=1}
 const STAR='<path d="M18 8l3 7 7 1-5.5 5 1.7 7.5L18 24.5 11.8 28.5l1.7-7.5L8 16l7-1z" fill="#ffd23f"/>';
 function glyph(role){if(role==='fav'){const o='<circle cx="18" cy="18" r="17" fill="#1b1b1e"/>';if(pad.kind||isPs())return `<svg class="hg" viewBox="0 0 36 36">${o}${STAR}</svg>`;return '<u>★</u>'}const k=pad.kind||(isPs()?'ps':null),o='<circle cx="18" cy="18" r="17" fill="#1b1b1e"/>',w=x=>`<svg class="hg" viewBox="0 0 36 36">${x}</svg>`;
