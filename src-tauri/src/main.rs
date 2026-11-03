@@ -200,6 +200,22 @@ fn rename_media(path: String, name: String, kind: String) -> Result<String, Stri
     Ok(format!("covers/{}", fname))
 }
 #[tauri::command]
+fn list_covers() -> String {
+    let dir = base_dir().join("covers");
+    let mut v: Vec<String> = Vec::new();
+    if let Ok(rd) = fs::read_dir(&dir) {
+        for e in rd.flatten() {
+            let p = e.path();
+            let ext = p.extension().map(|x| x.to_string_lossy().to_lowercase()).unwrap_or_default();
+            if p.is_file() && ["png", "jpg", "jpeg", "webp", "bmp", "gif"].contains(&ext.as_str()) {
+                if let Some(n) = p.file_name() { v.push(n.to_string_lossy().to_string()); }
+            }
+        }
+    }
+    v.sort();
+    serde_json::to_string(&v).unwrap_or_else(|_| "[]".to_string())
+}
+#[tauri::command]
 fn read_cover(path: String) -> Result<String, String> {
     let b = fs::read(resolve_media(&path)).map_err(|e| e.to_string())?;
     let mime = if b.starts_with(&[0x89, 0x50]) { "image/png" } else if b.starts_with(&[0xFF, 0xD8]) { "image/jpeg" } else if b.len() > 12 && &b[8..12] == b"WEBP" { "image/webp" } else { "image/png" };
@@ -277,7 +293,7 @@ fn quit(app: tauri::AppHandle) { app.exit(0); }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![load_data, save_data, list_drives, pick_folder, pick_file, export_data, import_data, gamepad_battery, scan, launch, open_path, fetch_cover, sgdb_list, save_image, rename_media, read_cover, quit])
+        .invoke_handler(tauri::generate_handler![load_data, save_data, list_drives, pick_folder, pick_file, export_data, import_data, gamepad_battery, scan, launch, open_path, fetch_cover, sgdb_list, save_image, rename_media, read_cover, list_covers, quit])
         .run(tauri::generate_context!())
         .expect("error while running app");
 }
