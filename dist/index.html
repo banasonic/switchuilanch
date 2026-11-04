@@ -325,9 +325,6 @@ async function delPart(en,pl,fs){const dn=decodeURIComponent(en),P=S.disks[dn]?.
 async function delDisk(en,fs){const dn=decodeURIComponent(en),D=S.disks[dn];if(!D)return;
  const n=Object.values(D.parts).reduce((a,p)=>a+p.folders.length,0);if(!await dlg(t('delDiskQ',S.alias[dn]||dn,n),'',false))return;
  delete S.disks[dn];delete S.alias[dn];purgeFavs(dn+'|');fixCur();persist();buildAll();if(fs)buildSet();toast(t('done'))}
-function drivesHtml(){const ks=Object.keys(S.disks);if(!ks.length)return '';
- return `<div style="margin:14px 0 4px;font-weight:700">${t('drives')}</div><div style="font-size:13px;opacity:.7;margin-bottom:6px">${t('driveNote')}</div>`+ks.map(n=>{const en=encodeURIComponent(n);
-  return `<div class="mr" style="margin:6px 0"><span>💽 ${esc(S.alias[n]||n)}${online(n)?'':' ⏏'}</span><button class="btn" onclick="delDisk('${en}',1)">🗑 ${t('delDisk')}</button></div>`+Object.entries(S.disks[n].parts).map(([l,P])=>`<div class="mr" style="margin:2px 0;padding-inline-start:18px;font-size:16px"><span>${l}: ${P.size?(P.size/1e9).toFixed(0)+' GB':''} · ${P.folders.length}</span><button class="btn" style="padding:5px 12px" onclick="delPart('${en}','${l}',1)">🗑 ${t('delPart')}</button></div>`).join('')}).join('')}
 function chips(){const sz=S.settings.showSize;
  if(!isMain()){$('#disks').innerHTML=`<div class="chip on">⭐ ${t('favs')}</div>`;$('#parts').innerHTML='';return}
  $('#disks').innerHTML=Object.keys(S.disks).map(n=>`<div class="chip ${n===cur.disk?'on':''} ${online(n)?'':'off'}" data-d="${encodeURIComponent(n)}">💽 ${esc(S.alias[n]||n)}${n===cur.disk?' <span data-r="1" style="opacity:.7">✎</span> <span data-x="1" style="opacity:.7">🗑</span>':''}</div>`).join('');
@@ -498,7 +495,6 @@ function buildSet(){const s=S.settings,o=(a,v)=>a.map(([k,l])=>`<option value="$
  ${s.glassBg==='custom'?`<div class="mr" data-sw="1">${t('gImg')}<button class="btn" onclick="pickBg()">${t('pickImg')}</button></div>`:''}
  ${bgMode()?`<div class="mr">${t('bgBr')}<span style="display:flex;gap:8px;align-items:center"><input type="range" min="10" max="100" step="1" value="${bgv(bgMode()).bright}" oninput="setBgv('bright',+this.value,this)"><small style="min-width:42px">${bgv(bgMode()).bright}%</small></span></div><div class="mr">${t('bgBlur')}<span style="display:flex;gap:8px;align-items:center"><input type="range" min="0" max="40" step="1" value="${bgv(bgMode()).blur}" oninput="setBgv('blur',+this.value,this)"><small style="min-width:42px">${bgv(bgMode()).blur}px</small></span></div><div class="mr"><button class="btn" onclick="resetBg()">${t('bgReset')}</button></div>`:''}
  <div class="mr"><span>${t('detect')}<br><small style="opacity:.7">${t('detectNote')}</small></span><button class="btn" onclick="detectLocal()">${t('play')}</button></div>
- ${drivesHtml()}
  ${ck('prayer',t('prayer'))}
  <div class="mr">${t('city')}<input type="text" value="${esc(s.city)}" onchange="sv('city',this.value.trim());refreshPrayer(1);refreshWeather(1)"></div>
  <div class="mr">${t('country')}<input type="text" value="${esc(s.country)}" onchange="sv('country',this.value.trim());refreshPrayer(1);refreshWeather(1)"></div>
